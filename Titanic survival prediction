@@ -1,0 +1,71 @@
+# TITANIC SURVIVAL PREDICTION PROJECT
+
+# Step 1: Import Libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Step 2: Load Sample Titanic Dataset
+data = {
+    'PassengerId': [1, 2, 3, 4, 5, 6, 7, 8],
+    'Survived':    [0, 1, 1, 1, 0, 0, 0, 1],
+    'Pclass':      [3, 1, 3, 1, 3, 3, 1, 2],
+    'Name': [
+        'Braund, Mr. Owen', 'Cumings, Mrs. John', 'Heikkinen, Miss. Laina', 'Futrelle, Mrs. Jacques',
+        'Allen, Mr. William', 'Moran, Mr. James', 'McCarthy, Mr. Timothy', 'Johnson, Miss. Nora'
+    ],
+    'Sex': ['male', 'female', 'female', 'female', 'male', 'male', 'male', 'female'],
+    'Age': [22, 38, 26, 35, 35, np.nan, 54, 27],
+    'SibSp': [1, 1, 0, 1, 0, 0, 0, 0],
+    'Parch': [0, 0, 0, 0, 0, 0, 0, 0],
+    'Fare': [7.25, 71.28, 7.92, 53.1, 8.05, 8.46, 51.86, 13.0],
+    'Embarked': ['S', 'C', 'S', 'S', 'S', 'Q', 'S', 'C']
+}
+df = pd.DataFrame(data)
+
+# Step 3: Display first few rows
+print("🔹 Dataset Preview:")
+print(df.head())
+
+# Step 4: Handle missing values
+print("\n🔹 Missing Values Before Handling:")
+print(df.isnull().sum())
+df['Age'].fillna(df['Age'].median(), inplace=True)  # Filling missing age
+
+# Step 5: Encode categorical variables
+le_sex = LabelEncoder()
+le_embarked = LabelEncoder()
+df['Sex'] = le_sex.fit_transform(df['Sex'])
+df['Embarked'] = le_embarked.fit_transform(df['Embarked'])
+
+# Step 6: Feature selection
+X = df[['Pclass', 'Sex', 'Age', 'SibSp', 'Fare', 'Embarked']]
+y = df['Survived']
+
+# Step 7: Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Step 8: Train the model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Step 9: Make predictions
+y_pred = model.predict(X_test)
+
+# Step 10: Evaluation
+print("\n✅ Model Evaluation:")
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Accuracy Score: {:.2f}%".format(accuracy_score(y_test, y_pred) * 100))
+
+# Step 11: Visualization of Survival by Sex and Class
+plt.figure(figsize=(6, 4))
+sns.barplot(x='Sex', y='Survived', hue='Pclass', data=df)
+plt.title("Survival Rate by Sex and Class")
+plt.show()
