@@ -1,0 +1,65 @@
+# CREDIT CARD FRAUD DETECTION PROJECT (COLAB-READY)
+
+# Step 1: Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Step 2: Create a small sample dataset (based on real structure)
+data = {
+    'Time': [0, 1, 2, 3, 4, 5, 6, 7],
+    'V1': [-1.3598, 1.1919, -1.3583, -0.9662, -1.1582, -0.4250, 1.6762, -2.3027],
+    'V2': [-0.0728, 0.2661, -1.3402, -0.1852, 0.8777, 0.9605, 1.5927, 1.4179],
+    'V3': [2.5363, 0.1664, 1.7732, 1.7929, 1.5487, -1.2515, 0.5238, -1.6076],
+    'V4': [1.3781, 0.4482, 0.3797, 0.8638, 0.4032, 0.3026, 0.8135, 2.7263],
+    'Amount': [149.62, 2.69, 378.66, 123.50, 69.99, 3.67, 10.00, 750.00],
+    'Class': [0, 0, 0, 0, 0, 1, 0, 1]  # 0 = Not Fraud, 1 = Fraud
+}
+df = pd.DataFrame(data)
+
+# Step 3: Basic info
+print("🔹 First 5 rows of the dataset:")
+print(df.head())
+
+print("\n🔹 Dataset Info:")
+print(df.info())
+
+print("\n🔹 Checking for missing values:")
+print(df.isnull().sum())
+
+# Step 4: Visualize class distribution
+plt.figure(figsize=(6, 4))
+sns.countplot(data=df, x='Class')
+plt.title("Fraud vs Non-Fraud Transaction Counts")
+plt.show()
+
+# Step 5: Feature Scaling
+scaler = StandardScaler()
+df['NormalizedAmount'] = scaler.fit_transform(df['Amount'].values.reshape(-1, 1))
+df = df.drop(['Amount'], axis=1)
+
+# Step 6: Splitting features and labels
+X = df.drop(['Class'], axis=1)
+y = df['Class']
+
+# Step 7: Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Step 8: Train a model (Random Forest)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Step 9: Predictions
+y_pred = model.predict(X_test)
+
+# Step 10: Evaluation
+print("\n✅ Model Evaluation:")
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+print("Accuracy: {:.2f}%".format(accuracy_score(y_test, y_pred) * 100))
